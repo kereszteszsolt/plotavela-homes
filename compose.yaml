@@ -1,12 +1,51 @@
 services:
-  app:
-    build: .
+  fe:
+    build:
+      context: .
+      target: fe
     ports:
-      - "127.0.0.1:${APP_PORT:-5000}:5000"
+      - "127.0.0.1:${APP_PORT:-5000}:80"
+    depends_on:
+      be:
+        condition: service_healthy
+    networks:
+      - web
+    restart: unless-stopped
+
+  be:
+    build:
+      context: .
+      target: be
+    init: true
     volumes:
       - app-data:/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - web
+      - database
+    restart: unless-stopped
+    stop_grace_period: 35s
+
+  mongodb:
+    build:
+      context: .
+      target: mongodb
+    volumes:
+      # Keep the existing volume and its mongo/ directory when splitting app.
+      - app-data:/data/db
+    tmpfs:
+      - /data/configdb:uid=10001,gid=10001
+    networks:
+      - database
     restart: unless-stopped
     stop_grace_period: 35s
 
 volumes:
   app-data:
+
+networks:
+  web:
+  database:
+    internal: true

@@ -19,9 +19,9 @@ docker compose up --build -d
 
 Open [http://localhost:5000](http://localhost:5000). To use another port, run `APP_PORT=8080 docker compose up --build -d`.
 
-One container runs MongoDB and the Node API, which also serves the built frontend. The single `app-data` volume stores the database, uploaded images and an automatically generated signing secret. MongoDB listens only inside the container; only the application port is published, on localhost.
+Docker Desktop shows three containers in one Compose group: `fe` (frontend and HTTP proxy), `be` (Node API), and `mongodb` (database). Only the frontend port is published, on localhost. The backend and MongoDB communicate on a private network. The existing `app-data` volume retains the database, uploads and signing secret.
 
-The container starts with an empty database and does not import or modify an existing installation. Register through the interface. To make that account an administrator, open `docker compose exec app node` and run the following with your registered email:
+A new volume starts empty. When upgrading from the single-container setup, keep the same Compose project name and stop the old `app` container before starting the three services; they reuse its existing data. Run `docker compose up --build -d --remove-orphans` after stopping the old container. Register through the interface. To make that account an administrator, open `docker compose exec be node` and run the following with your registered email:
 
 ```js
 const mongoose = (await import('mongoose')).default
@@ -31,7 +31,7 @@ await User.updateOne({ email: 'your-registered-email@example.com' }, { $set: { i
 await mongoose.disconnect()
 ```
 
-Sign out and back in to see the admin menu. `docker compose logs -f` shows application/database logs; `docker compose down` stops the container and keeps the data. Avoid `docker compose down -v` unless you intend to delete that data. For a backup, stop the container and copy the entire volume. Public hosting requires HTTPS through a reverse proxy; this command publishes a local instance.
+Sign out and back in to see the admin menu. `docker compose logs -f` shows application/database logs; `docker compose down` stops the containers and keeps the data. Avoid `docker compose down -v` unless you intend to delete that data. For a backup, stop the containers and copy the entire volume. Public hosting requires HTTPS through a reverse proxy; this command publishes a local instance.
 
 ## Screenshots
 
