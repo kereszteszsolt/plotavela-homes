@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import {useDispatch, useSelector} from 'react-redux'
-import {Row, Col, Image, ListGroup, Card, Button, Form, Table} from 'react-bootstrap'
+import {Row, Col, Image, ListGroup, Button, Form, Table} from 'react-bootstrap'
 import Rating from '../components/Rating'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
@@ -13,6 +13,7 @@ import {
 import {PROPERTY_CREATE_REVIEW_RESET} from '../constants/propertyConstants'
 
 const PropertyScreen = ({history, match}) => {
+    const propertyId = match.params.id
     const [rating, setRating] = useState(0)
     const [comment, setComment] = useState('')
 
@@ -32,15 +33,16 @@ const PropertyScreen = ({history, match}) => {
     } = propertyReviewCreate
 
     useEffect(() => {
+        dispatch(listPropertyDetails(propertyId))
+        dispatch({type: PROPERTY_CREATE_REVIEW_RESET})
+    }, [dispatch, propertyId])
+
+    useEffect(() => {
         if (successPropertyReview) {
             setRating(0)
             setComment('')
         }
-        if (!property?._id || property._id !== match.params.id) {
-            dispatch(listPropertyDetails(match.params.id))
-            dispatch({type: PROPERTY_CREATE_REVIEW_RESET})
-        }
-    }, [dispatch, match, successPropertyReview, property._id])
+    }, [successPropertyReview])
 
     const submitHandler = (e) => {
         e.preventDefault()
@@ -82,6 +84,14 @@ const PropertyScreen = ({history, match}) => {
                                     <td>${property.price}</td>
                                 </tr>
                                 <tr>
+                                    <td>Property type:</td>
+                                    <td>{property.propertyType}</td>
+                                </tr>
+                                <tr>
+                                    <td>Transaction type:</td>
+                                    <td>{property.transactionType}</td>
+                                </tr>
+                                <tr>
                                     <td>Nr of bedrooms:</td>
                                     <td>{property.nrOfBedrooms}</td>
                                 </tr>
@@ -114,6 +124,10 @@ const PropertyScreen = ({history, match}) => {
                     <Row>
                         <Col md={6}>
                             <h2>Reviews</h2>
+                            <Rating
+                                value={property.rating}
+                                text={`${property.numReviews || 0} ${property.numReviews === 1 ? 'review' : 'reviews'} — average ${(property.rating || 0).toFixed(1)} / 5`}
+                            />
                             {property.reviews.length === 0 && <Message>No Reviews</Message>}
                             <ListGroup variant='flush'>
                                 {property.reviews.map((review) => (

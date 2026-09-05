@@ -5,7 +5,9 @@ const notFound = (req, res, next) => {
 }
 
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode
+  const inputError = ['CastError', 'ValidationError', 'MulterError'].includes(err.name)
+  const statusCode = res.statusCode !== 200 ? res.statusCode
+    : err.code === 11000 ? 409 : inputError ? 400 : err.status || 500
   res.status(statusCode)
   res.json({
     message: err.message,

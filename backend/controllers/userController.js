@@ -108,7 +108,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({})
+  const users = await User.find({}).select('-password')
   res.json(users)
 })
 
@@ -119,7 +119,7 @@ const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id)
 
   if (user) {
-    await user.remove()
+    await user.deleteOne()
     res.json({ message: 'User removed' })
   } else {
     res.status(404)
