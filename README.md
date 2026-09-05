@@ -33,6 +33,28 @@ await mongoose.disconnect()
 
 Sign out and back in to see the admin menu. `docker compose logs -f` shows application/database logs; `docker compose down` stops the containers and keeps the data. Avoid `docker compose down -v` unless you intend to delete that data. For a backup, stop the containers and copy the entire volume. Public hosting requires HTTPS through a reverse proxy; this command publishes a local instance.
 
+### Load demo data
+
+The seed data contains **6 properties and 3 demo users**. It is not loaded automatically when the containers start.
+
+**Warning: running the seeder deletes all existing users and properties in the configured database before importing the demo data.** Use it only for a disposable local/demo installation; it does not ask for confirmation.
+
+With the containers running, execute this command from the project directory:
+
+```bash
+docker compose exec be node backend/seeder.js
+```
+
+The backend imports the fixtures into the Docker MongoDB database. On success, it prints `Data Imported!`. Refresh [http://localhost:5000](http://localhost:5000); sign out and back in if you were already logged in, because seeding replaces the user records.
+
+| Name | Email | Password | Role |
+| --- | --- | --- | --- |
+| Admin User | `admin@example.com` | `123456` | Administrator |
+| John Doe | `john@example.com` | `123456` | Regular user |
+| Jane Doe | `jane@example.com` | `123456` | Regular user |
+
+These credentials are public demo credentials. Do not use these accounts on a publicly accessible installation. The fixtures are in [backend/data/users.js](backend/data/users.js) and [backend/data/properties.js](backend/data/properties.js).
+
 ## Screenshots
 
 Screenshots use fictional demonstration accounts and listings.
