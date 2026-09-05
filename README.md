@@ -11,6 +11,28 @@ Features:
 - Create, edit, and delete properties as an administrator
 - Manage users and their roles as an administrator
 
+## Run with Docker
+
+```bash
+docker compose up --build -d
+```
+
+Open [http://localhost:5000](http://localhost:5000). To use another port, run `APP_PORT=8080 docker compose up --build -d`.
+
+One container runs MongoDB and the Node API, which also serves the built frontend. The single `app-data` volume stores the database, uploaded images and an automatically generated signing secret. MongoDB listens only inside the container; only the application port is published, on localhost.
+
+The container starts with an empty database and does not import or modify an existing installation. Register through the interface. To make that account an administrator, open `docker compose exec app node` and run the following with your registered email:
+
+```js
+const mongoose = (await import('mongoose')).default
+await mongoose.connect(process.env.MONGO_URI)
+const User = (await import('./backend/models/userModel.js')).default
+await User.updateOne({ email: 'your-registered-email@example.com' }, { $set: { isAdmin: true } })
+await mongoose.disconnect()
+```
+
+Sign out and back in to see the admin menu. `docker compose logs -f` shows application/database logs; `docker compose down` stops the container and keeps the data. Avoid `docker compose down -v` unless you intend to delete that data. For a backup, stop the container and copy the entire volume. Public hosting requires HTTPS through a reverse proxy; this command publishes a local instance.
+
 ## Screenshots
 
 Screenshots use fictional demonstration accounts and listings.
