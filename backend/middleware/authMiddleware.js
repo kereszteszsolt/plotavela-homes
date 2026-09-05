@@ -16,7 +16,8 @@ const protect = asyncHandler(async (req, res, next) => {
 
       req.user = await User.findById(decoded.id).select('-password')
 
-      next()
+      if (!req.user) throw new Error('User no longer exists')
+      return next()
     } catch (error) {
       console.error(error)
       res.status(401)

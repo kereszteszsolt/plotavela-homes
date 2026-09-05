@@ -6,15 +6,19 @@ import Property from '../models/propertyModel.js'
 // @access  Public
 const getProperties = asyncHandler(async (req, res) => {
   const pageSize = 10
-  const page = Number(req.query.pageNumber) || 1
-
-  const keyword = req.query.keyword
-    ? {
-        name: {
-          $regex: req.query.keyword,
-          $options: 'i',
-        },
-      }
+  const page = (req.query.pageNumber === undefined || req.query.pageNumber === '') ? 1 : Number(req.query.pageNumber)
+  if (!Number.isSafeInteger(page) || page < 1 || page > 1000000 ||
+    (req.query.keyword !== undefined && typeof req.query.keyword !== 'string')) {
+    res.status(400)
+    throw new Error('Invalid search or page number')
+  }
+  const search = (req.query.keyword || '').trim()
+  if (search.length > 200) {
+    res.status(400)
+    throw new Error('Search must be 200 characters or fewer')
+  }
+  const keyword = search
+    ? { name: { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } }
     : {}
 
   const count = await Property.countDocuments({ ...keyword })
@@ -46,7 +50,7 @@ const deleteProperty = asyncHandler(async (req, res) => {
   const property = await Property.findById(req.params.id)
 
   if (property) {
-    await property.remove()
+    await property.deleteOne()
     res.json({ message: 'Property removed' })
   } else {
     res.status(404)
@@ -89,7 +93,7 @@ const updateProperty = asyncHandler(async (req, res) => {
     image,
     propertyType,
     transactionType,
-    nrOfBedRooms,
+    nrOfBedrooms,
     nrOfBathrooms,
     city,
     district,
@@ -106,7 +110,7 @@ const updateProperty = asyncHandler(async (req, res) => {
     property.image = image
     property.propertyType = propertyType
     property.transactionType = transactionType
-    property.nrOfBedRooms = nrOfBedRooms
+    property.nrOfBedrooms = nrOfBedrooms
     property.nrOfBathrooms = nrOfBathrooms
     property.city = city
     property.district = district
@@ -125,6 +129,11 @@ const updateProperty = asyncHandler(async (req, res) => {
 // @access  Private
 const createPropertyReview = asyncHandler(async (req, res) => {
   const { rating, comment } = req.body
+  if (!Number.isInteger(Number(rating)) || Number(rating) < 1 || Number(rating) > 5 ||
+    typeof comment !== 'string' || !comment.trim() || comment.length > 2000) {
+    res.status(400)
+    throw new Error('Choose a rating from 1 to 5 and write a review of up to 2000 characters')
+  }
 
   const property = await Property.findById(req.params.id)
 

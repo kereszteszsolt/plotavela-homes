@@ -31,7 +31,7 @@ export const listProperty = (keyword = '', pageNumber = '') => async (
     dispatch({ type: PROPERTY_LIST_REQUEST })
 
     const { data } = await axios.get(
-      `/api/properties?keyword=${keyword}&pageNumber=${pageNumber}`
+      `/api/properties?keyword=${encodeURIComponent(keyword)}&pageNumber=${pageNumber}`
     )
 
     dispatch({
@@ -211,6 +211,7 @@ export const createPropertyReview = (propertyId, review) => async (
     dispatch({
       type: PROPERTY_CREATE_REVIEW_SUCCESS,
     })
+    dispatch(listPropertyDetails(propertyId))
   } catch (error) {
     const message =
       error.response && error.response.data.message

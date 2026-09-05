@@ -37,9 +37,15 @@ const reducer = combineReducers({
   userUpdate: userUpdateReducer,
 })
 
-const userInfoFromStorage = localStorage.getItem('userInfo')
-  ? JSON.parse(localStorage.getItem('userInfo'))
-  : null
+let userInfoFromStorage = null
+try {
+  const stored = JSON.parse(localStorage.getItem('userInfo'))
+  if (stored && typeof stored === 'object' && typeof stored.token === 'string') {
+    userInfoFromStorage = stored
+  }
+} catch {
+  localStorage.removeItem('userInfo')
+}
 
 const initialState = {
   userLogin: { userInfo: userInfoFromStorage },

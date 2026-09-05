@@ -24,6 +24,8 @@ const PropertyEditScreen = ({ match, history }) => {
   const [address, setAddress] = useState(0)
   const [description, setDescription] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const { userInfo } = useSelector((state) => state.userLogin)
 
   const dispatch = useDispatch()
 
@@ -62,6 +64,8 @@ const PropertyEditScreen = ({ match, history }) => {
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0]
+    if (!file) return
+    setUploadError('')
     const formData = new FormData()
     formData.append('image', file)
     setUploading(true)
@@ -69,7 +73,7 @@ const PropertyEditScreen = ({ match, history }) => {
     try {
       const config = {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userInfo.token}`,
         },
       }
 
@@ -78,7 +82,7 @@ const PropertyEditScreen = ({ match, history }) => {
       setImage(data)
       setUploading(false)
     } catch (error) {
-      console.error(error)
+      setUploadError(error.response?.data?.message || 'Image upload failed')
       setUploading(false)
     }
   }
@@ -153,6 +157,7 @@ const PropertyEditScreen = ({ match, history }) => {
                 onChange={uploadFileHandler}
               ></Form.File>
               {uploading && <Loader />}
+              {uploadError && <Message variant='danger'>{uploadError}</Message>}
             </Form.Group>
 
             <Form.Group controlId='propertyType'>
@@ -165,11 +170,11 @@ const PropertyEditScreen = ({ match, history }) => {
               ></Form.Control>
             </Form.Group>
 
-            <Form.Group controlId='nrOfBedRooms'>
+            <Form.Group controlId='nrOfBedrooms'>
               <Form.Label>Nr of bedrooms</Form.Label>
               <Form.Control
                 type='number'
-                placeholder='Enter nrOfBedRooms'
+                placeholder='Enter nrOfBedrooms'
                 value={nrOfBedrooms}
                 onChange={(e) => setNrOfBedrooms(e.target.value)}
               ></Form.Control>
