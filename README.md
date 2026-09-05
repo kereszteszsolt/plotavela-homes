@@ -71,12 +71,4 @@ Screenshots use fictional demonstration accounts and listings.
 
 ## License
 
-[MIT](LICENSE). Original copyright: © 2021 Zsolt Keresztes.
-
-## Contact
-
-Maintainer: **Keresztes Zsolt** · [Website](https://kereszteszsolt.hu/) · [GitHub](https://github.com/kereszteszsolt)
-
-## Buy Me a Coffee
-
-[Support my work with a coffee](https://buymeacoffee.com/kereszteszsolt) · [Other ways to support](https://kereszteszsolt.hu/en/ways-to-support/)
+MIT. See [`LICENSE`](LICENSE) for details.

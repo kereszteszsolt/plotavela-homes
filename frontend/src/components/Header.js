@@ -21,7 +21,10 @@ const Header = () => {
       <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
         <Container>
           <LinkContainer to='/'>
-            <Navbar.Brand>Plotavela</Navbar.Brand>
+            <Navbar.Brand className='d-flex align-items-center'>
+              <img src='/favicon.ico' width='32' height='32' alt='' className='mr-2' />
+              Plotavela
+            </Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
